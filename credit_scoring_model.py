@@ -26,9 +26,7 @@ from sklearn.metrics import (
 )
 
 
-# ============================================================
 # 1. LOAD DATASET
-# ============================================================
 
 df = pd.read_csv("credit_data.csv")
 
@@ -49,51 +47,38 @@ print("\nMissing values:")
 print(df.isnull().sum())
 
 
-# ============================================================
 # 2. BASIC DATA CLEANING
-# ============================================================
-
-# Remove duplicate rows
 df = df.drop_duplicates()
 
-# Make sure target column exists
 if "target" not in df.columns:
     raise ValueError(
         "The CSV file must contain a 'target' column."
     )
 
 
-# ============================================================
-# 3. FEATURE ENGINEERING
-# ============================================================
 
-# Debt-to-Income Ratio
+# 3. FEATURE ENGINEERING
+
 if "debt" in df.columns and "income" in df.columns:
 
     df["debt_to_income"] = (
         df["debt"] / df["income"].replace(0, np.nan)
     )
 
-# Payment Risk
 if "late_payments" in df.columns:
 
-    # Simple risk indicator
     df["payment_risk"] = (
         df["late_payments"] > 2
     ).astype(int)
 
 
-# ============================================================
 # 4. SEPARATE FEATURES AND TARGET
-# ============================================================
 
 X = df.drop("target", axis=1)
 y = df["target"]
 
 
-# ============================================================
 # 5. IDENTIFY NUMERICAL AND CATEGORICAL FEATURES
-# ============================================================
 
 numerical_features = X.select_dtypes(
     include=["int64", "float64"]
@@ -110,11 +95,8 @@ print("\nCategorical Features:")
 print(categorical_features)
 
 
-# ============================================================
 # 6. PREPROCESSING
-# ============================================================
 
-# Numerical preprocessing
 numeric_transformer = Pipeline(
     steps=[
         (
@@ -129,12 +111,6 @@ numeric_transformer = Pipeline(
 )
 
 
-# Categorical preprocessing
-# One-hot encoding is performed using pandas before
-# model training for simplicity.
-
-
-# Convert categorical columns to numerical columns
 X = pd.get_dummies(
     X,
     columns=categorical_features,
@@ -142,16 +118,12 @@ X = pd.get_dummies(
 )
 
 
-# Handle missing values
 X = X.fillna(X.median(numeric_only=True))
 
-# Any remaining missing values
 X = X.fillna(0)
 
 
-# ============================================================
 # 7. TRAIN-TEST SPLIT
-# ============================================================
 
 X_train, X_test, y_train, y_test = train_test_split(
     X,
@@ -165,9 +137,7 @@ print("\nTraining samples:", len(X_train))
 print("Testing samples:", len(X_test))
 
 
-# ============================================================
 # 8. CREATE MODELS
-# ============================================================
 
 models = {
 
@@ -197,9 +167,7 @@ models = {
 }
 
 
-# ============================================================
 # 9. TRAIN AND EVALUATE MODELS
-# ============================================================
 
 results = {}
 
@@ -210,16 +178,12 @@ for name, model in models.items():
     print(name)
     print("=" * 60)
 
-    # Train
     model.fit(X_train, y_train)
 
-    # Prediction
     y_pred = model.predict(X_test)
 
-    # Probability prediction
     y_probability = model.predict_proba(X_test)[:, 1]
 
-    # Metrics
     accuracy = accuracy_score(
         y_test,
         y_pred
@@ -256,7 +220,6 @@ for name, model in models.items():
         "ROC-AUC": roc_auc
     }
 
-    # Display results
     print(f"Accuracy : {accuracy:.4f}")
     print(f"Precision: {precision:.4f}")
     print(f"Recall   : {recall:.4f}")
@@ -273,9 +236,7 @@ for name, model in models.items():
     )
 
 
-# ============================================================
 # 10. MODEL COMPARISON
-# ============================================================
 
 results_df = pd.DataFrame(results).T
 
@@ -287,9 +248,7 @@ print("=" * 80)
 print(results_df)
 
 
-# ============================================================
 # 11. VISUALIZE MODEL PERFORMANCE
-# ============================================================
 
 results_df.plot(
     kind="bar",
@@ -317,9 +276,7 @@ plt.tight_layout()
 plt.show()
 
 
-# ============================================================
 # 12. SELECT BEST MODEL
-# ============================================================
 
 best_model_name = results_df[
     "ROC-AUC"
@@ -348,9 +305,7 @@ print(
 )
 
 
-# ============================================================
 # 13. CONFUSION MATRIX
-# ============================================================
 
 best_predictions = best_model.predict(
     X_test
@@ -393,9 +348,7 @@ plt.tight_layout()
 plt.show()
 
 
-# ============================================================
 # 14. ROC CURVES
-# ============================================================
 
 plt.figure(
     figsize=(8, 6)
@@ -452,9 +405,7 @@ plt.tight_layout()
 plt.show()
 
 
-# ============================================================
 # 15. FEATURE IMPORTANCE - RANDOM FOREST
-# ============================================================
 
 random_forest = models[
     "Random Forest"
@@ -482,7 +433,6 @@ print(
 )
 
 
-# Plot feature importance
 plt.figure(
     figsize=(10, 6)
 )
@@ -502,12 +452,8 @@ plt.tight_layout()
 plt.show()
 
 
-# ============================================================
 # 16. PREDICT CREDITWORTHINESS OF A NEW APPLICANT
-# ============================================================
 
-# Example applicant
-# The values should match the columns in your CSV.
 
 new_applicant = pd.DataFrame({
     "age": [35],
@@ -520,7 +466,6 @@ new_applicant = pd.DataFrame({
 })
 
 
-# Feature engineering for new applicant
 
 if "debt" in new_applicant.columns and \
    "income" in new_applicant.columns:
@@ -537,7 +482,6 @@ if "late_payments" in new_applicant.columns:
     ).astype(int)
 
 
-# Make columns identical to training data
 new_applicant = pd.get_dummies(
     new_applicant
 )
@@ -548,7 +492,6 @@ new_applicant = new_applicant.reindex(
 )
 
 
-# Predict
 prediction = best_model.predict(
     new_applicant
 )[0]
@@ -558,7 +501,6 @@ probability = best_model.predict_proba(
 )[0][1]
 
 
-# Display prediction
 print("\n")
 print("=" * 60)
 print("CREDIT SCORE PREDICTION")

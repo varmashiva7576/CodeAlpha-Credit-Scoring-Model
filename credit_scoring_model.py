@@ -26,8 +26,6 @@ from sklearn.metrics import (
 )
 
 
-# 1. LOAD DATASET
-
 df = pd.read_csv("credit_data.csv")
 
 print("=" * 60)
@@ -47,7 +45,6 @@ print("\nMissing values:")
 print(df.isnull().sum())
 
 
-# 2. BASIC DATA CLEANING
 df = df.drop_duplicates()
 
 if "target" not in df.columns:
@@ -55,9 +52,6 @@ if "target" not in df.columns:
         "The CSV file must contain a 'target' column."
     )
 
-
-
-# 3. FEATURE ENGINEERING
 
 if "debt" in df.columns and "income" in df.columns:
 
@@ -72,13 +66,9 @@ if "late_payments" in df.columns:
     ).astype(int)
 
 
-# 4. SEPARATE FEATURES AND TARGET
-
 X = df.drop("target", axis=1)
 y = df["target"]
 
-
-# 5. IDENTIFY NUMERICAL AND CATEGORICAL FEATURES
 
 numerical_features = X.select_dtypes(
     include=["int64", "float64"]
@@ -94,8 +84,6 @@ print(numerical_features)
 print("\nCategorical Features:")
 print(categorical_features)
 
-
-# 6. PREPROCESSING
 
 numeric_transformer = Pipeline(
     steps=[
@@ -123,8 +111,6 @@ X = X.fillna(X.median(numeric_only=True))
 X = X.fillna(0)
 
 
-# 7. TRAIN-TEST SPLIT
-
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -136,8 +122,6 @@ X_train, X_test, y_train, y_test = train_test_split(
 print("\nTraining samples:", len(X_train))
 print("Testing samples:", len(X_test))
 
-
-# 8. CREATE MODELS
 
 models = {
 
@@ -166,8 +150,6 @@ models = {
     )
 }
 
-
-# 9. TRAIN AND EVALUATE MODELS
 
 results = {}
 
@@ -236,8 +218,6 @@ for name, model in models.items():
     )
 
 
-# 10. MODEL COMPARISON
-
 results_df = pd.DataFrame(results).T
 
 print("\n")
@@ -247,8 +227,6 @@ print("=" * 80)
 
 print(results_df)
 
-
-# 11. VISUALIZE MODEL PERFORMANCE
 
 results_df.plot(
     kind="bar",
@@ -276,7 +254,6 @@ plt.tight_layout()
 plt.show()
 
 
-# 12. SELECT BEST MODEL
 
 best_model_name = results_df[
     "ROC-AUC"
@@ -304,8 +281,6 @@ print(
     )
 )
 
-
-# 13. CONFUSION MATRIX
 
 best_predictions = best_model.predict(
     X_test
@@ -347,8 +322,6 @@ plt.tight_layout()
 
 plt.show()
 
-
-# 14. ROC CURVES
 
 plt.figure(
     figsize=(8, 6)
@@ -405,8 +378,6 @@ plt.tight_layout()
 plt.show()
 
 
-# 15. FEATURE IMPORTANCE - RANDOM FOREST
-
 random_forest = models[
     "Random Forest"
 ]
@@ -450,9 +421,6 @@ plt.title(
 plt.tight_layout()
 
 plt.show()
-
-
-# 16. PREDICT CREDITWORTHINESS OF A NEW APPLICANT
 
 
 new_applicant = pd.DataFrame({

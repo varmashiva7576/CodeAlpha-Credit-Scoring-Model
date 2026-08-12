@@ -180,10 +180,4 @@ compliance.
 
 Name: Varma Shiva 
 
-Course: BCA-V
-
-College/University: Shreyarth University
-
 Project    : Task 1 - Credit Scoring
-
-Date: 
